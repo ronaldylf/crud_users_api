@@ -2,73 +2,51 @@ const sqlite3 = require('sqlite3').verbose();
 
 const db_path = './db/users.db'
 
-async function createUserDB(info) {
-    // open database
-    let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, err => {
+async function close_db(db) {
+    // close the database connection
+    await db.close((err) => {
         if (err) {
             throw err
             return;
         }
+        //console.log('Close the database connection.');
+    });
+}
 
-        //console.log('Connected to the in-memory SQlite database.');
+async function createUserDB(info) {
+    // open database
+    let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, err => {
+        if (err) throw err
     });
     
     sql = "INSERT INTO users (username, age, bio) VALUES (?, ?, ?)"
     db.serialize(() => {
         db.run(sql, [info.username, info.age, info.bio], err => {
             if (err) throw err
-            return;
         })
+        close_db(db)
     })
-
-    // close the database connection
-    await db.close((err) => {
-        if (err) {
-            throw err
-            return;
-        }
-        //console.log('Close the database connection.');
-    });
 }
 //////////////////////////////////////////////////////////////////////
 async function deleteUserDB(row_id) {
     // open database
     let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, err => {
-        if (err) {
-            throw err
-            return;
-        }
-
-        //console.log('Connected to the in-memory SQlite database.');
+        if (err) throw err
     });
     
     sql = "DELETE FROM users WHERE row_id=?"
     db.serialize(() => {
         db.run(sql, row_id, err => {
             if (err) throw err
-            return;
         })
+        close_db(db)
     })
-
-    // close the database connection
-    await db.close((err) => {
-        if (err) {
-            throw err
-            return;
-        }
-        //console.log('Close the database connection.');
-    });
 }
 //////////////////////////////////////////////////////////////////////
 async function updateUserDB(info) {
     // open database
     let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, err => {
-        if (err) {
-            throw err
-            return;
-        }
-
-        //console.log('Connected to the in-memory SQlite database.');
+        if (err) throw err
     });
     
     sql = "UPDATE users SET username=?, age=?, bio=? WHERE row_id=?"
@@ -77,27 +55,14 @@ async function updateUserDB(info) {
             if (err) throw err
             return;
         })
+        close_db(db)
     })
-
-    // close the database connection
-    await db.close((err) => {
-        if (err) {
-            throw err
-            return;
-        }
-        //console.log('Close the database connection.');
-    });
 }
 ////////////////////
 async function readALL(callback) {
     // open database
     let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, err => {
-        if (err) {
-            throw err
-            return;
-        }
-
-        //console.log('Connected to the in-memory SQlite database.');
+        if (err) throw err
     });
     
     sql = "SELECT * FROM users"
@@ -105,21 +70,15 @@ async function readALL(callback) {
         db.all(sql, [], (err, rows) => {
             if (err) throw err
             callback(rows)
-            db.close()
         })
+        close_db(db)
     })
-    
 }
 ///////////////////////////////////////
 async function readUserDB(field, value, callback) {
     // open database
     let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, err => {
-        if (err) {
-            throw err
-            return;
-        }
-
-        //console.log('Connected to the in-memory SQlite database.');
+        if (err) throw err
     });
     
     sql = "SELECT * FROM users WHERE "+field+"=?"
@@ -127,8 +86,8 @@ async function readUserDB(field, value, callback) {
         db.get(sql, [value], (err, row) => {
             if (err) throw err
             callback(row)
-            db.close()
         })
+        close_db(db)
     })
     
 }
@@ -145,7 +104,7 @@ const pseudo_class = {
     updateUserDB, // update
     deleteUserDB, // delete
 
-    readALL, // read => return a callback
+    readALL, // read => get the rows by a callback
 }
 
 module.exports = pseudo_class
