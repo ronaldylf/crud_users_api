@@ -20,11 +20,11 @@ function isvalidData(obj_body) {
 }
 
 
-app.post('/createUser', (req, res, next) => {
+app.post('/createUser', async (req, res, next) => {
     const body = req.body
     
     let json_response = {
-        status: ""
+        status: "aaaa"
     }
     
     if (!isvalidData(body)) {
@@ -33,21 +33,18 @@ app.post('/createUser', (req, res, next) => {
         return res.send(JSON.stringify(json_response))
     }
 
-    db.readUserDB("username", body.username, async user => {
+    
+    await db.readUserDB("username", body.username, user => {
         if (user!==undefined) {
-            console.log("ESTE USUÁRIO JÁ EXISTE")
             json_response.status = "error"
             json_response.reason = "this username already exists"
-            return await res.send(JSON.stringify(json_response))
+            return res.send(JSON.stringify(json_response))
         }
+
+        db.createUserDB(body)
+        json_response.status = "ok"
+        return res.send(JSON.stringify(json_response))
     })
-
-    console.log("CHEGOU NO CREATE")
-    db.createUserDB(body)
-
-    console.log("CHEGOU NO OK")
-    json_response.status = "ok"
-    res.send(JSON.stringify(json_response))
 })
 
 app.get('/', (req, res) => {
