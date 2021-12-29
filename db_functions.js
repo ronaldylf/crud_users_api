@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
-
+var uuid4 = require('uuid4')
 const db_path = './db/users.db'
 
 async function close_db(db) {
@@ -19,24 +19,24 @@ async function createUserDB(info) {
         if (err) throw err
     });
     
-    sql = "INSERT INTO users (username, age, bio) VALUES (?, ?, ?)"
+    sql = "INSERT INTO users (id_, username, age, bio) VALUES (?, ?, ?, ?)"
     db.serialize(() => {
-        db.run(sql, [info.username, info.age, info.bio], err => {
+        db.run(sql, [uuid4(), info.username, info.age, info.bio], err => {
             if (err) throw err
         })
         close_db(db)
     })
 }
 //////////////////////////////////////////////////////////////////////
-async function deleteUserDB(row_id) {
+async function deleteUserDB(id_) {
     // open database
     let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, err => {
         if (err) throw err
     });
     
-    sql = "DELETE FROM users WHERE row_id=?"
+    sql = "DELETE FROM users WHERE id_=?"
     db.serialize(() => {
-        db.run(sql, row_id, err => {
+        db.run(sql, id_, err => {
             if (err) throw err
         })
         close_db(db)
@@ -49,9 +49,9 @@ async function updateUserDB(info) {
         if (err) throw err
     });
     
-    sql = "UPDATE users SET username=?, age=?, bio=? WHERE row_id=?"
+    sql = "UPDATE users SET username=?, age=?, bio=? WHERE id_=?"
     db.serialize(() => {
-        db.run(sql, [info.username, info.age, info.bio, info.row_id], err => {
+        db.run(sql, [info.username, info.age, info.bio, info.id_], err => {
             if (err) throw err
             return;
         })

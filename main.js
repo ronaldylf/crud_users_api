@@ -76,7 +76,28 @@ app.post("/readUser", (req, res) => {
 })
 ///////////////////////////////////////////////
 app.post("/updateUser", (req, res) => {
-    
+    const possible_user = req.body
+    let json_response = {
+
+    }
+
+    if (!isvalidData(possible_user)) {
+        json_response.status = "error"
+        json_response.reason = "some data is invalid"
+        return res.send(JSON.stringify(json_response))
+    }
+
+    db.readUserDB("id_", possible_user.id_, (user) => {
+        if (user===undefined) {
+            json_response.status = "error"
+            json_response.reason = "user not found"
+            return res.send(JSON.stringify(json_response))
+        }
+        
+        db.updateUserDB(possible_user)
+        json_response.status = "ok"
+        return res.send(JSON.stringify(json_response))
+    })
 })
 
 app.get('/', (req, res) => {
