@@ -24,7 +24,7 @@ app.post('/createUser', async (req, res, next) => {
     const body = req.body
     
     let json_response = {
-        status: "aaaa"
+        status: ""
     }
     
     if (!isvalidData(body)) {
@@ -45,6 +45,38 @@ app.post('/createUser', async (req, res, next) => {
         json_response.status = "ok"
         return res.send(JSON.stringify(json_response))
     })
+})
+///////////////////////////////////////////////
+app.post("/readUser", (req, res) => {
+    const field = req.body.field
+    const value = req.body.value
+    let json_response = {
+
+    }
+
+    if (field===undefined || value===undefined) {
+        json_response.status = "error"
+        json_response.reason = "some data is missing"
+        console.log(json_response.reason)
+        return res.send(JSON.stringify(json_response))
+    }
+
+
+    db.readUserDB(field, value, (user) => {
+        if (user===undefined) {
+            json_response.status = "error"
+            json_response.reason = "user not found"
+        } else {
+            json_response.status = "ok"
+            json_response.user = user
+        }
+        
+        return res.send(JSON.stringify(json_response))
+    })
+})
+///////////////////////////////////////////////
+app.post("/updateUser", (req, res) => {
+    
 })
 
 app.get('/', (req, res) => {
