@@ -3,7 +3,6 @@ var fs = require('fs')
 
 var express = require('express')
 var app = express()
-
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -87,7 +86,7 @@ app.post("/updateUser", (req, res) => {
         return res.send(JSON.stringify(json_response))
     }
 
-    db.readUserDB("id_", possible_user.id_, (user) => {
+    db.readUserDB("id_", possible_user.id_, user => {
         if (user===undefined) {
             json_response.status = "error"
             json_response.reason = "user not found"
@@ -100,6 +99,21 @@ app.post("/updateUser", (req, res) => {
     })
 })
 ///////////////////////////////////////////////
+app.post("/deleteUser", (req, res) => {
+    const id = req.body.id
+    let json_response = {}
+    db.readUserDB("id_", id, user => {
+        if (user===undefined) {
+            json_response.status = "error"
+            json_response.reason = "user not found"
+            return res.send(JSON.stringify(json_response))
+        }
+
+        db.deleteUserDB(id)
+        json_response.status = "ok"
+        return res.send(JSON.stringify(json_response))        
+    })
+})
 
 app.get('/', (req, res) => {
     res.send("HOME")
