@@ -114,6 +114,14 @@ app.post("/deleteUser", (req, res) => {
         return res.send(JSON.stringify(json_response))        
     })
 })
+///////////////////////////////////////////////
+app.get('/readALL', (req, res) => {
+    db.readALL(rows => {
+        console.log("READING ALL DB ROWS")
+        return res.send(JSON.stringify(rows))
+    })
+})
+
 
 app.get('/', (req, res) => {
     res.send("HOME")
